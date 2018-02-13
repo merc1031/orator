@@ -479,7 +479,14 @@ class morph_to_many(relation):
     relation_class = MorphToMany
 
     def __init__(
-        self, name, table=None, foreign_key=None, other_key=None, relation=None
+        self,
+        name,
+        table=None,
+        foreign_key=None,
+        other_key=None,
+        relation=None,
+        with_timestamps=False,
+        with_pivot=None,
     ):
         if isinstance(name, (types.FunctionType, types.MethodType)):
             raise RuntimeError("morph_to_many relation required a name")
@@ -489,10 +496,13 @@ class morph_to_many(relation):
         self._foreign_key = foreign_key
         self._other_key = other_key
 
+        self._timestamps = with_timestamps
+        self._pivot = with_pivot
+
         super(morph_to_many, self).__init__(relation=relation)
 
     def _get(self, instance):
-        return instance.morph_to_many(
+        r = instance.morph_to_many(
             self._related,
             self._name,
             self._table,
@@ -501,6 +511,14 @@ class morph_to_many(relation):
             relation=self._relation,
             _wrapped=False,
         )
+
+        if self._timestamps:
+            r = r.with_timestamps()
+
+        if self._pivot:
+            r = r.with_pivot(*self._pivot)
+
+        return r
 
 
 class morphed_by_many(relation):
@@ -511,7 +529,14 @@ class morphed_by_many(relation):
     relation_class = MorphToMany
 
     def __init__(
-        self, name, table=None, foreign_key=None, other_key=None, relation=None
+        self,
+        name,
+        table=None,
+        foreign_key=None,
+        other_key=None,
+        relation=None,
+        with_timestamps=False,
+        with_pivot=None,
     ):
         if isinstance(foreign_key, (types.FunctionType, types.MethodType)):
             raise RuntimeError("morphed_by_many relation requires a name")
@@ -521,10 +546,13 @@ class morphed_by_many(relation):
         self._foreign_key = foreign_key
         self._other_key = other_key
 
+        self._timestamps = with_timestamps
+        self._pivot = with_pivot
+
         super(morphed_by_many, self).__init__(relation=relation)
 
     def _get(self, instance):
-        return instance.morphed_by_many(
+        r = instance.morphed_by_many(
             self._related,
             self._name,
             self._table,
@@ -533,3 +561,11 @@ class morphed_by_many(relation):
             self._relation,
             _wrapped=False,
         )
+
+        if self._timestamps:
+            r = r.with_timestamps()
+
+        if self._pivot:
+            r = r.with_pivot(*self._pivot)
+
+        return r
