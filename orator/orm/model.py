@@ -1125,9 +1125,13 @@ class Model(object):
         if table is None:
             table = self.joining_table(instance)
 
+        pivot_instance = self._get_related(table, True, safe=True)
+
         query = instance.new_query()
 
-        rel = BelongsToMany(query, self, table, foreign_key, other_key, relation)
+        rel = BelongsToMany(
+            query, self, table, foreign_key, other_key, relation, pivot_instance
+        )
 
         if _wrapped:
             warn(
@@ -1197,8 +1201,18 @@ class Model(object):
         if not table:
             table = inflection.pluralize(name)
 
+        pivot_instance = self._get_related(table, True, safe=True)
+
         rel = MorphToMany(
-            query, self, name, table, foreign_key, other_key, caller, inverse
+            query,
+            self,
+            name,
+            table,
+            foreign_key,
+            other_key,
+            caller,
+            inverse,
+            pivot_instance,
         )
 
         if _wrapped:
@@ -1257,7 +1271,7 @@ class Model(object):
             related, name, table, foreign_key, other_key, True, relation, _wrapped
         )
 
-    def _get_related(self, related, as_instance=False):
+    def _get_related(self, related, as_instance=False, safe=False):
         """
         Get the related class.
 
@@ -1286,6 +1300,8 @@ class Model(object):
 
             return related_class
 
+        if safe:
+            return None
         raise RelatedClassNotFound(related)
 
     def joining_table(self, related):
