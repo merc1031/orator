@@ -352,7 +352,8 @@ class Connection(ConnectionInterface):
                   'server closed the connection unexpectedly',
                   'ssl connection has been closed unexpectedly',
                   'error writing data to the connection',
-                  'resource deadlock avoided',]:
+                  'resource deadlock avoided',
+                  'connection already closed',]:
             if s in message:
                 return True
 
