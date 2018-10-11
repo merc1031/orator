@@ -45,6 +45,9 @@ class BaseDatabaseManager(ConnectionResolverInterface):
             self._set_connection_for_type(connection, type)
 
             self._connections[name] = self._prepare(connection)
+        else:
+            if self._connections[name].closed():
+                self._connections[name].reconnect()
 
         return self._connections[name]
 
