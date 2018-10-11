@@ -353,7 +353,8 @@ class Connection(ConnectionInterface):
                   'ssl connection has been closed unexpectedly',
                   'error writing data to the connection',
                   'resource deadlock avoided',
-                  'connection already closed',]:
+                  'connection already closed',
+                  'ssl syscall error',]:
             if s in message:
                 return True
 
