@@ -577,3 +577,6 @@ class Connection(ConnectionInterface):
 
     def get_server_version(self):
         return self._connection.get_server_version()
+
+    def closed(self):
+        return False
