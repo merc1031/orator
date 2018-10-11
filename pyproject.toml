@@ -18,7 +18,7 @@ keywords = ['database', 'orm']
 
 
 [tool.poetry.dependencies]
-python = "~2.7 || ^3.5"
+python = "~2.7 || ^3.4"
 backpack = "^0.1"
 blinker = "^1.4"
 cleo = "^0.6"
