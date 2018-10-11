@@ -372,6 +372,7 @@ class Connection(ConnectionInterface):
             "connection timed out",
             "resource deadlock avoided",
             "connection already closed",
+            "ssl syscall error",
         ]:
             if s in message:
                 return True
