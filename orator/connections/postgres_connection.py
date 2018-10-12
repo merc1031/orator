@@ -76,4 +76,4 @@ class PostgresConnection(Connection):
         return self._cursor.query.decode()
 
     def closed(self):
-        return self._connection.closed
+        return self._connection.closed if self._connection is not None else True
