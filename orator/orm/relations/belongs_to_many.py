@@ -888,6 +888,7 @@ class BelongsToMany(Relation):
             self._foreign_key,
             self._other_key,
             self._relation_name,
+            self._table_model,
         )
 
         relation.with_pivot(*self._pivot_columns)
