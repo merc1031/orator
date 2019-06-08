@@ -654,9 +654,15 @@ class BelongsToMany(Relation):
         Update an existing pivot record on the table.
         """
         if self.updated_at() in self._pivot_columns:
-            attributes = self.set_timestamps_on_attach(attributes, True)
+            attributes = self._set_timestamps_on_attach(attributes, True)
 
-        updated = self.new_pivot_statement_for_id(id).update(attributes)
+        if self._table_model is not None:
+            q = self._table_model.__class__.where(
+                self._foreign_key, self._parent.get_key())
+
+            updated = q.where(self._other_key, id).first().update(attributes)
+        else:
+            updated = self.new_pivot_statement_for_id(id).update(attributes)
 
         if touch:
             self.touch_if_touching()
@@ -670,12 +676,16 @@ class BelongsToMany(Relation):
         if isinstance(id, orator.orm.Model):
             id = id.get_key()
 
-        query = self.new_pivot_statement()
-
         if not isinstance(id, list):
             id = [id]
 
-        query.insert(self._create_attach_records(id, attributes))
+        if self._table_model is not None:
+            [self._table_model.__class__.create(**v) for v in self._create_attach_records(id, attributes)]
+
+        else:
+            query = self.new_pivot_statement()
+
+            query.insert(self._create_attach_records(id, attributes))
 
         if touch:
             self.touch_if_touching()
@@ -759,18 +769,27 @@ class BelongsToMany(Relation):
         if ids is None:
             ids = []
 
-        query = self._new_pivot_query()
-
         if not isinstance(ids, list):
             ids = [ids]
 
-        if len(ids) > 0:
-            query.where_in(self._other_key, ids)
+        if self._table_model is not None:
+            q = self._table_model.__class__.where(
+                self._foreign_key, self._parent.get_key())
 
-        if touch:
-            self.touch_if_touching()
+            if touch:
+                self.touch_if_touching()
 
-        results = query.delete()
+            results = all([m.delete() for m in q.where_in(self._other_key, ids).get()])
+        else:
+            query = self._new_pivot_query()
+
+            if len(ids) > 0:
+                query.where_in(self._other_key, ids)
+
+            if touch:
+                self.touch_if_touching()
+
+            results = query.delete()
 
         return results
 
